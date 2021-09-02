@@ -45,5 +45,9 @@ func main() {
 	messages.RegisterRoutes(app)
 	chats.RegisterRoutes(app)
 
-	app.Listen(":3000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	app.Listen(":" + port)
 }
