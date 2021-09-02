@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/gorm"
@@ -15,7 +16,11 @@ import (
 
 func initDatabase() {
 	var err error
-	database.DBConn, err = gorm.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=go_chat sslmode=disable password=10pearls1+")
+	connectionString := os.Getenv("DATABASE_URL")
+	if connectionString == "" {
+		connectionString = "host=127.0.0.1 port=5432 user=postgres dbname=go_chat sslmode=disable password=10pearls1+"
+	}
+	database.DBConn, err = gorm.Open("postgres", connectionString)
 	if err != nil {
 		log.Println(err.Error())
 		panic("Failed to connect to database")
