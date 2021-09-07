@@ -12,6 +12,7 @@ import (
 	"github.com/saadsurya/go-chat/chats"
 	"github.com/saadsurya/go-chat/database"
 	"github.com/saadsurya/go-chat/messages"
+	socket "github.com/saadsurya/go-chat/sockets"
 	"github.com/saadsurya/go-chat/users"
 )
 
@@ -40,6 +41,7 @@ func main() {
 	defer database.DBConn.Close()
 
 	authentication.RegisterRoutes(app)
+	socket.RegisterRoutes(app)
 
 	app.Use(authentication.GetJWTMiddleware())
 

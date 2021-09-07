@@ -1,9 +1,15 @@
 package users
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
+)
 
 func GetAll(c *fiber.Ctx) error {
-	c.JSON(GetAllUsers())
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	username := claims["username"].(string)
+	c.JSON(GetAllUsers(username))
 	return nil
 }
 

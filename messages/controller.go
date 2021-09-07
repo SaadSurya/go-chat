@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"time"
 
+	socket "github.com/saadsurya/go-chat/sockets"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -23,6 +25,10 @@ func SendMessage(c *fiber.Ctx) error {
 
 	CreateMessage(message)
 
+	if s := socket.Sockets[message.To]; s != nil {
+		s.WriteJSON(message)
+	}
+
 	c.JSON(message)
 	return nil
 }
@@ -31,17 +37,23 @@ func GetMessages(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	username := claims["username"].(string)
+
 	ofUser := c.Query("ofUser")
+
 	const layout = "2006-01-02T15:04:05-0700"
-	before, err := time.Parse(layout, c.Query("before"))
-	if err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(err)
-		return nil
+	before := time.Now()
+	if c.Query("before") != "" {
+		beforeParam, err := time.Parse(layout, c.Query("before"))
+		if err != nil {
+			c.Status(fiber.StatusBadRequest).JSON(err)
+			return nil
+		}
+		before = beforeParam
 	}
+
 	limit, err := strconv.Atoi(c.Query("limit"))
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(err)
-		return nil
+		limit = 20
 	}
 	messages := Retrieve(username, ofUser, before, limit)
 

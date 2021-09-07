@@ -1,6 +1,8 @@
 package users
 
-import "github.com/saadsurya/go-chat/database"
+import (
+	"github.com/saadsurya/go-chat/database"
+)
 
 func FindByUsernamePassword(username string, password string) *User {
 	db := database.DBConn
@@ -14,9 +16,13 @@ func CreateUser(user *User) {
 	db.Create(&user)
 }
 
-func GetAllUsers() []User {
+func GetAllUsers(username string) map[string]User {
 	db := database.DBConn
 	var users []User
-	db.Select([]string{"id", "username", "first_name", "last_name"}).Find(&users)
-	return users
+	db.Select([]string{"id", "username", "first_name", "last_name", "created_at", "updated_at"}).Where("username <> ?", username).Order("created_at desc").Find(&users)
+	usersMap := make(map[string]User, len(users))
+	for _, user := range users {
+		usersMap[user.Username] = user
+	}
+	return usersMap
 }
