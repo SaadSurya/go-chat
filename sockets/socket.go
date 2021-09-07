@@ -26,6 +26,12 @@ func RegisterRoutes(app *fiber.App) {
 		// log.Println(c.Query("v"))         // 1.0
 		// log.Println(c.Cookies("session")) // ""
 
+		c.SetCloseHandler(func(code int, text string) error {
+			log.Println("Socket Closed")
+			delete(Sockets, c.Params("id"))
+			return nil
+		})
+
 		Sockets[c.Params("id")] = c
 
 		// websocket.Conn bindings https://pkg.go.dev/github.com/fasthttp/websocket?tab=doc#pkg-index
